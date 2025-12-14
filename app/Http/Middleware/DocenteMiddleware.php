@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class DocenteMiddleware
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $user = $request->user();
+
+        if (!$user) abort(403);
+
+        if (property_exists($user, 'activo') && !$user->activo) {
+            abort(403, 'Usuario inactivo');
+        }
+
+        if (!isset($user->rol) || $user->rol !== 'docente') {
+            abort(403, 'Solo docentes');
+        }
+
+        // que exista el docente vinculado
+        if (method_exists($user, 'docente') && !$user->docente) {
+            abort(403, 'Tu usuario no está vinculado a un docente');
+        }
+        
+        return $next($request);
+    }
+}
