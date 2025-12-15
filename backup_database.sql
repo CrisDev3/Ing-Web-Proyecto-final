@@ -74,15 +74,13 @@ CREATE TABLE `materias` (
   `creditos` int DEFAULT '3',
   `horas_teoricas` int DEFAULT '3',
   `horas_practicas` int DEFAULT '0',
-  `plan_estudios_id` bigint unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `materias_codigo_unique` (`codigo`),
-  KEY `idx_codigo` (`codigo`),
-  KEY `idx_plan_estudios` (`plan_estudios_id`),
-  CONSTRAINT `materias_plan_estudios_id_foreign` FOREIGN KEY (`plan_estudios_id`) REFERENCES `plan_estudios` (`id`) ON DELETE CASCADE
+  KEY `idx_codigo` (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 --
 -- Tabla: prerequisitos
@@ -273,7 +271,12 @@ CREATE TABLE `matriculas` (
 --
 
 INSERT INTO `usuarios` (`email`, `password`, `rol`, `activo`, `created_at`, `updated_at`) VALUES
-('admin@matriculas.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'administrador', 1, NOW(), NOW());
+('admin@matriculas.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'administrador', 1, NOW(), NOW())
+ON DUPLICATE KEY UPDATE
+`password`=VALUES(`password`),
+`rol`=VALUES(`rol`),
+`activo`=VALUES(`activo`),
+`updated_at`=NOW();
 
 -- ============================================================================
 -- INSTRUCCIONES DE RESTAURACIÓN

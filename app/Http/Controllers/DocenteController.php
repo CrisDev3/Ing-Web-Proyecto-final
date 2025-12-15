@@ -11,28 +11,31 @@ use Illuminate\Support\Facades\Hash;
 class DocenteController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Docente::with('usuario')->orderBy('apellido')->orderBy('nombre');
+{
+    $query = Docente::with('usuario')
+        ->orderBy('apellido')
+        ->orderBy('nombre');
 
-        if ($request->filled('search')) {
-            $s = $request->search;
-            $query->where(function ($q) use ($s) {
-                $q->where('nombre', 'like', "%{$s}%")
-                  ->orWhere('apellido', 'like', "%{$s}%")
-                  ->orWhere('cedula', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%")
-                  ->orWhere('especialidad', 'like', "%{$s}%");
-            });
-        }
-
-        if ($request->filled('activo')) {
-            $query->where('activo', (bool)$request->activo);
-        }
-
-        $docentes = $query->paginate(15)->withQueryString();
-
-        return view('docentes.index', compact('docentes'));
+    if ($request->filled('search')) {
+        $s = $request->search;
+        $query->where(function ($q) use ($s) {
+            $q->where('nombre', 'like', "%{$s}%")
+              ->orWhere('apellido', 'like', "%{$s}%")
+              ->orWhere('cedula', 'like', "%{$s}%")
+              ->orWhere('email', 'like', "%{$s}%")
+              ->orWhere('especialidad', 'like', "%{$s}%");
+        });
     }
+
+    if ($request->filled('activo')) {
+        $query->where('activo', $request->boolean('activo'));
+    }
+
+    $docentes = $query->paginate(15)->withQueryString();
+
+    return view('docentes.index', compact('docentes'));
+}
+
 
     public function create()
     {

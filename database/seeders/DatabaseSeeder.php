@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Crear usuario administrador
-        $admin = User::create([  // ✅ CAMBIO AQUÍ
+        $admin = User::updateOrCreate([  // ✅ CAMBIO AQUÍ
             'email' => 'admin@matriculas.com',
             'password' => Hash::make('admin123'),
             'rol' => 'administrador',
@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         echo "✓ Usuario administrador creado\n";
 
         // Crear Planes de Estudio
-        $planSistemas = PlanEstudios::create([
+        $planSistemas = PlanEstudios::updateOrCreate([
             'nombre' => 'Ingeniería en Sistemas',
             'codigo' => 'ING-SIS',
             'descripcion' => 'Plan de estudios para la carrera de Ingeniería en Sistemas Computacionales',
@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             'activo' => true,
         ]);
 
-        $planIndustrial = PlanEstudios::create([
+        $planIndustrial = PlanEstudios::updateOrCreate([
             'nombre' => 'Ingeniería Industrial',
             'codigo' => 'ING-IND',
             'descripcion' => 'Plan de estudios para la carrera de Ingeniería Industrial',
@@ -142,11 +142,11 @@ class DatabaseSeeder extends Seeder
         echo "✓ Materias creadas y asociadas al plan\n";
 
         // Crear prerequisitos
-        $materiasCreadas[1]->prerequisitos()->attach($materiasCreadas[0]->id);
-        $materiasCreadas[3]->prerequisitos()->attach($materiasCreadas[2]->id);
-        $materiasCreadas[5]->prerequisitos()->attach($materiasCreadas[4]->id);
-        $materiasCreadas[6]->prerequisitos()->attach($materiasCreadas[3]->id);
-        $materiasCreadas[7]->prerequisitos()->attach($materiasCreadas[3]->id);
+        $materiasCreadas[1]->prerequisitos()->syncWithoutDetaching($materiasCreadas[0]->id);
+        $materiasCreadas[3]->prerequisitos()->syncWithoutDetaching($materiasCreadas[2]->id);
+        $materiasCreadas[5]->prerequisitos()->syncWithoutDetaching($materiasCreadas[4]->id);
+        $materiasCreadas[6]->prerequisitos()->syncWithoutDetaching($materiasCreadas[3]->id);
+        $materiasCreadas[7]->prerequisitos()->syncWithoutDetaching($materiasCreadas[3]->id);
 
         echo "✓ Prerequisitos configurados\n";
 
@@ -379,7 +379,7 @@ class DatabaseSeeder extends Seeder
             $grupo = Grupo::create($grupoData);
             
             foreach ($horarioIds as $horarioIndex) {
-                $grupo->horarios()->attach($horariosCreados[$horarioIndex]->id);
+                $grupo->horarios()->syncWithoutDetaching($horariosCreados[$horarioIndex]->id);
             }
         }
 

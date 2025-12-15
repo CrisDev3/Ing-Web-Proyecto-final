@@ -10,34 +10,38 @@ use Illuminate\Http\Request;
 class GrupoController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Grupo::with(['materia', 'docente'])->orderByDesc('id');
+{
+    $query = Grupo::with(['materia', 'docente'])->orderByDesc('id');
 
-        if ($request->filled('search')) {
-            $s = $request->search;
-            $query->where('codigo', 'like', "%{$s}%")
-                  ->orWhere('periodo_academico', 'like', "%{$s}%");
-        }
+    if ($request->filled('search')) {
+        $s = $request->search;
 
-        if ($request->filled('materia_id')) {
-            $query->where('materia_id', $request->materia_id);
-        }
-
-        if ($request->filled('docente_id')) {
-            $query->where('docente_id', $request->docente_id);
-        }
-
-        if ($request->filled('activo')) {
-            $query->where('activo', $request->activo);
-        }
-
-        $grupos = $query->paginate(15)->withQueryString();
-
-        $materias = Materia::orderBy('nombre')->get();
-        $docentes = Docente::orderBy('apellido')->orderBy('nombre')->get();
-
-        return view('grupos.index', compact('grupos', 'materias', 'docentes'));
+        $query->where(function ($q) use ($s) {
+            $q->where('codigo', 'like', "%{$s}%")
+              ->orWhere('periodo_academico', 'like', "%{$s}%");
+        });
     }
+
+    if ($request->filled('materia_id')) {
+        $query->where('materia_id', $request->materia_id);
+    }
+
+    if ($request->filled('docente_id')) {
+        $query->where('docente_id', $request->docente_id);
+    }
+
+    if ($request->filled('activo')) {
+        $query->where('activo', (int)$request->activo);
+    }
+
+    $grupos = $query->paginate(15)->withQueryString();
+
+    $materias = Materia::orderBy('nombre')->get();
+    $docentes = Docente::orderBy('apellido')->orderBy('nombre')->get();
+
+    return view('grupos.index', compact('grupos', 'materias', 'docentes'));
+}
+
 
     public function create()
     {

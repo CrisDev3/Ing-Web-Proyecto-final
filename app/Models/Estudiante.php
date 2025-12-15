@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class Estudiante extends Model
 {
@@ -110,19 +111,47 @@ class Estudiante extends Model
     /**
      * Obtener horario del estudiante (matrículas activas)
      */
-    public function obtenerHorario()
-    {
-        return $this->matriculasActivas()
-            ->with(['grupo.horarios', 'grupo.materia', 'grupo.docente'])
-            ->get()
-            ->map(function ($matricula) {
-                return [
-                    'materia' => $matricula->grupo->materia->nombre,
-                    'docente' => $matricula->grupo->docente->nombreCompleto,
-                    'horarios' => $matricula->grupo->horarios,
-                ];
-            });
-    }
+
+public function obtenerHorario(): Collection
+{
+    // Trae matrículas + grupo + horarios + materia + docente
+    $matriculas = $this->matriculas()
+        ->where('estado', 'activa') 
+        ->with([
+            'grupo.horarios',
+            'grupo.materia',
+            'grupo.docente',
+        ])
+        ->get();
+
+    // Convertimos a “bloques” por cada horario del grupo
+    $bloques = $matriculas->flatMap(function ($mat) {
+        $g = $mat->grupo;
+        if (!$g) return [];
+
+        return $g->horarios->map(function ($h) use ($g) {
+            return [
+                'dia' => $h->dia,
+                'hora_inicio' => substr($h->hora_inicio, 0, 5),
+                'hora_fin'    => substr($h->hora_fin, 0, 5),
+                'tipo' => $h->tipo,
+                'grupo' => $g, // para que la vista acceda a grupo->codigo, ->materia, ->docente
+            ];
+        });
+    });
+
+    // Orden de días
+    $ordenDias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+    return $bloques
+        ->sortBy(function ($b) use ($ordenDias) {
+            $iDia = array_search($b['dia'], $ordenDias);
+            $iDia = $iDia === false ? 999 : $iDia;
+            return sprintf('%03d-%s', $iDia, $b['hora_inicio']);
+        })
+        ->groupBy('dia');
+}
+
 
     /**
      * Calcular carga académica actual (créditos)

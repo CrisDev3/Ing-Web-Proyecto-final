@@ -17,40 +17,40 @@ class EstudianteController extends Controller
 
     
     public function index(Request $request)
-    {
-        $query = Estudiante::with(['planEstudios', 'usuario']);
+{
+    $query = Estudiante::with(['planEstudios', 'usuario']);
 
-        // Búsqueda
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('apellido', 'like', "%{$search}%")
-                  ->orWhere('cedula', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
+    // Búsqueda (solo si viene con texto)
+    if ($request->filled('search')) {
+        $search = trim($request->search);
+        $query->where(function ($q) use ($search) {
+            $q->where('nombre', 'like', "%{$search}%")
+              ->orWhere('apellido', 'like', "%{$search}%")
+              ->orWhere('cedula', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%");
+        });
+    }
 
-        // Filtro por plan de estudios
-        if ($request->has('plan_id')) {
-            $query->where('plan_estudios_id', $request->plan_id);
-        }
+    // Filtro por plan (solo si viene seleccionado)
+    if ($request->filled('plan_id')) {
+        $query->where('plan_estudios_id', $request->plan_id);
+    }
 
-        // Filtro por estado
-        if ($request->has('activo')) {
-            $query->where('activo', $request->activo);
-        }
+    // Filtro por estado (acepta "1" y "0")
+    if ($request->has('activo') && $request->activo !== '') {
+        $query->where('activo', (int)$request->activo);
+    }
 
-        $estudiantes = $query->orderBy('apellido')
+    $estudiantes = $query->orderBy('apellido')
         ->orderBy('nombre')
         ->paginate(15)
         ->withQueryString();
 
+    $planes = PlanEstudios::activos()->get();
 
-        $planes = PlanEstudios::activos()->get();
+    return view('estudiantes.index', compact('estudiantes', 'planes'));
+}
 
-        return view('estudiantes.index', compact('estudiantes', 'planes'));
-    }
 
     /**
      * Show the form for creating a new resource.
