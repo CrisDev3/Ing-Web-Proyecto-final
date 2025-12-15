@@ -270,13 +270,8 @@ CREATE TABLE `matriculas` (
 -- Password: admin123
 --
 
-INSERT INTO `usuarios` (`email`, `password`, `rol`, `activo`, `created_at`, `updated_at`) VALUES
-('admin@matriculas.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'administrador', 1, NOW(), NOW())
-ON DUPLICATE KEY UPDATE
-`password`=VALUES(`password`),
-`rol`=VALUES(`rol`),
-`activo`=VALUES(`activo`),
-`updated_at`=NOW();
+-- INSERT INTO `usuarios` (`email`, `password`, `rol`, `activo`, `created_at`, `updated_at`) VALUES
+-- ('admin@matriculas.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'administrador', 1, NOW(), NOW());
 
 -- ============================================================================
 -- INSTRUCCIONES DE RESTAURACIÓN

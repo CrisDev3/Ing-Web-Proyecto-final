@@ -13,7 +13,7 @@
         <!-- Información del Perfil -->
         <div class="university-card">
             <div class="university-card-header">
-                <h3 class="text-lg font-semibold">Información del Perfil</h3>
+                <h3 class="text-lg font-semibold text-white">Información del Perfil</h3>
             </div>
             <div class="p-6">
                 <div class="max-w-xl">
