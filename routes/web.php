@@ -21,9 +21,15 @@ use App\Http\Controllers\ProfileController;
 // ------------------------------------------------------------------------
 // RUTA DE INICIO
 // ------------------------------------------------------------------------
+
+// Cambia esto por el de abajo
+//Route::get('/', function () {
+//    return redirect()->route('login');
+//});
+
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    return view('welcome');
+})->name('home');
 
 // ------------------------------------------------------------------------
 // RUTAS DE AUTENTICACIÓN (Laravel Breeze)
@@ -175,13 +181,24 @@ Route::middleware(['auth', 'estudiante'])
     ->name('mi.')
     ->group(function () {
 
-        Route::get('perfil', [EstudianteController::class, 'miPerfil'])->name('perfil');
+        // lo que ya tienes
+        //Route::get('perfil', [EstudianteController::class, 'miPerfil'])->name('perfil');
         Route::get('horario', [EstudianteController::class, 'miHorario'])->name('horario');
-
-        // Flujo de automatrícula
         Route::get('matricular', [MatriculaController::class, 'autoMatricula'])->name('matricular');
         Route::post('matricular', [MatriculaController::class, 'autoMatricularStore'])->name('matricular.store');
+
+        // SOLO LECTURA (catálogo)
+        Route::get('materias', [MateriaController::class, 'miIndex'])->name('materias.index');
+        Route::get('materias/{materia}', [MateriaController::class, 'miShow'])->name('materias.show');
+
+        Route::get('planes', [PlanEstudiosController::class, 'miIndex'])->name('planes.index');
+        Route::get('planes/{plan}', [PlanEstudiosController::class, 'miShow'])->name('planes.show');
+
+        Route::get('grupos', [GrupoController::class, 'miIndex'])->name('grupos.index');
+        Route::get('grupos/{grupo}', [GrupoController::class, 'miShow'])->name('grupos.show');
     });
+
+
 
 // ========================================================================
 // RUTAS PARA DOCENTE

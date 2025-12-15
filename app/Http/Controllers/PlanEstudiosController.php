@@ -153,4 +153,24 @@ public function update(Request $request, PlanEstudios $plan_estudio)
         );
     }
 
+    public function miIndex()
+    {
+        $planes = PlanEstudios::query()
+            ->orderBy('nombre')
+            ->paginate(10);
+
+        return view('mi.planes.index', compact('planes'));
+    }
+
+    public function miShow(PlanEstudios $plan)
+{
+    $plan->load(['materias' => function ($q) {
+        $q->orderBy('materia_plan_estudios.semestre')
+          ->orderBy('materias.nombre');
+    }]);
+
+    return view('mi.planes.show', compact('plan'));
+}
+
+
 }

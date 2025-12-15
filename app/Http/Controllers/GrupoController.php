@@ -124,4 +124,31 @@ class GrupoController extends Controller
             ->route('grupos.index')
             ->with('success', 'Grupo eliminado.');
     }
+
+    public function miIndex(Request $request)
+    {
+        $query = Grupo::with(['materia', 'docente', 'horarios'])
+            ->orderBy('codigo');
+    
+        // 🔎 Búsqueda opcional
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where('codigo', 'like', "%{$q}%")
+                  ->orWhereHas('materia', fn ($m) =>
+                      $m->where('nombre', 'like', "%{$q}%")
+                  );
+        }
+    
+        $grupos = $query->paginate(10);
+    
+        return view('mi.grupos.index', compact('grupos'));
+    }
+
+    public function miShow(Grupo $grupo)
+    {
+        $grupo->load(['materia', 'docente', 'horarios']);
+
+        return view('mi.grupos.show', compact('grupo'));
+    }
+
 }

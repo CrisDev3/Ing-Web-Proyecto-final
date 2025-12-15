@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Estudiante;
+use App\Models\Matricula;
 use App\Models\User;
+use App\Models\Materia;
 use App\Models\PlanEstudios;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -198,7 +200,7 @@ class EstudianteController extends Controller
 
             // Eliminar usuario asociado si existe
             if ($usuarioId) {
-                Usuario::find($usuarioId)?->delete();
+                User::find($usuarioId)?->delete();
             }
 
             DB::commit();
@@ -234,6 +236,27 @@ class EstudianteController extends Controller
         $horario = $estudiante->obtenerHorario();
         return view('estudiantes.horario', compact('estudiante', 'horario'));
     }
+
+    public function miShow(Materia $materia)
+{
+    $materia->load(['planesEstudios', 'prerequisitos', 'dependientes']);
+    return view('mi.materias.show', compact('materia'));
+}
+
+public function miHorario()
+{
+    $estudiante = Estudiante::where('usuario_id', auth()->id())->firstOrFail();
+
+    $matriculas = Matricula::with(['grupo.materia', 'grupo.docente', 'grupo.horarios'])
+        ->where('estudiante_id', $estudiante->id)
+        ->where('estado', Matricula::ESTADO_ACTIVA) // opcional
+        ->orderByDesc('fecha_matricula')
+        ->get();
+
+    return view('mi.horario', compact('estudiante', 'matriculas'));
+}
+
+
 
 }
 

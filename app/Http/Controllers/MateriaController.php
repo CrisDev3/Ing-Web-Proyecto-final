@@ -137,4 +137,19 @@ class MateriaController extends Controller
             ->with(['docente', 'horarios'])
             ->get();
     }
+
+    public function miIndex()
+    {
+        $materias = Materia::with('planesEstudios')
+            ->orderBy('nombre')
+            ->paginate(10);
+
+        return view('mi.materias.index', compact('materias'));
+    }
+
+    public function miShow(Materia $materia)
+    {
+        $materia->load(['planesEstudios', 'prerequisitos', 'dependientes']);
+        return view('mi.materias.show', compact('materia'));
+    }
 }

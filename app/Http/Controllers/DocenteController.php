@@ -159,7 +159,7 @@ class DocenteController extends Controller
             $docente->delete();
 
             if ($usuarioId) {
-                Usuario::find($usuarioId)?->delete();
+                User::find($usuarioId)?->delete();
             }
 
             return redirect()

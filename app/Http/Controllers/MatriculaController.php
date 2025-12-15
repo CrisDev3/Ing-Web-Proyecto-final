@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Estudiante;
 use App\Models\Grupo;
 use App\Models\Matricula;
-use App\Models\Materia; // ✅ FALTABA
+use App\Models\Materia; 
 use Illuminate\Http\Request;
 
 class MatriculaController extends Controller
@@ -58,7 +58,6 @@ class MatriculaController extends Controller
     {
         $user = $request->user();
 
-        // ✅ Si tu relación no se llama estudiante(), esto fallará.
         $estudiante = $user->estudiante;
 
         if (!$estudiante) {
@@ -66,9 +65,13 @@ class MatriculaController extends Controller
                 ->with('error', 'Tu usuario no está vinculado a un estudiante.');
         }
 
-        $materias = Materia::where('plan_estudios_id', $estudiante->plan_estudios_id)
-            ->orderBy('nombre')
-            ->get();
+        $planId = $estudiante->plan_estudios_id;
+
+        $materias = Materia::whereHas('planesEstudios', function ($q) use ($planId) {
+        $q->where('plan_estudios.id', $planId);
+        })
+        ->orderBy('nombre')
+        ->get();
 
         $materiaId = $request->query('materia_id');
         $grupos = collect();
